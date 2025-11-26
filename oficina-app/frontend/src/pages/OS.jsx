@@ -53,7 +53,7 @@ export default function OSPage() {
       const abertas = todas.filter(os => os.status !== 'encerrada')
       setOsAbertas(abertas)
     } catch (err) {
-      console.error('Erro ao carregar OS abertas:', err)
+      // Silent error
     }
   }
 
@@ -270,7 +270,7 @@ export default function OSPage() {
       generateOSImage(newOS).then(imageUrl => {
         setOsImageUrl(imageUrl)
       }).catch(err => {
-        console.error('Erro ao gerar imagem:', err)
+        // Silent error
       })
       
       toast.success('Ordem de serviço criada com sucesso!')

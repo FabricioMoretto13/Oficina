@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-import { getOSs, deleteOS, generateOSPdf, getChecklistsByOS, getClientes, getVeiculos, getChecklists, closeOS, sendOSEmail } from '../api';
+import { getOSs, deleteOS, generateOSPdf, getChecklistsByOS, getClientes, getVeiculos, getChecklists, closeOS, sendOSEmail, reopenOS } from '../api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../contexts/ToastContext';
 
@@ -12,6 +12,9 @@ export default function OrdensServico() {
   const [showEntregaModal, setShowEntregaModal] = useState(false);
   const [showFinalizarModal, setShowFinalizarModal] = useState(false);
   const [osParaFinalizar, setOsParaFinalizar] = useState(null);
+  const [showReopenModal, setShowReopenModal] = useState(false);
+  const [osParaReabrir, setOsParaReabrir] = useState(null);
+  const [reopeningOs, setReopeningOs] = useState({});
   const [entregaChecks, setEntregaChecks] = useState([
     { label: 'Foi colocado combustível?', checked: false },
     { label: 'Verificação do protetor de cárter', checked: false },
@@ -106,6 +109,32 @@ export default function OrdensServico() {
     }
   }
 
+  async function handleReopenOS() {
+    if (osParaReabrir) {
+      setShowReopenModal(false);
+      try {
+        setReopeningOs(prev => ({ ...prev, [osParaReabrir]: true }));
+        const updated = await reopenOS(osParaReabrir);
+        setOss(prev => prev.map(p => {
+          if (p._id === updated._id) {
+            return {
+              ...updated,
+              clienteId: p.clienteId,
+              veiculoId: p.veiculoId
+            };
+          }
+          return p;
+        }));
+        toast.success('OS reaberta com sucesso!');
+      } catch (err) {
+        toast.error(err.message || 'Erro ao reabrir OS');
+      } finally {
+        setReopeningOs(prev => ({ ...prev, [osParaReabrir]: false }));
+        setOsParaReabrir(null);
+      }
+    }
+  }
+
   const [oss, setOss] = useState([])
   const [clientes, setClientes] = useState([])
   const [veiculos, setVeiculos] = useState([])
@@ -157,7 +186,6 @@ export default function OrdensServico() {
       const blobType = blob.type || contentType || ''
       // if server returned HTML (error page), show helpful message and open the URL for inspection
       if (blobType.includes('html') || blobType.includes('text')) {
-        console.error('downloadFile: server returned HTML/text instead of image', { url: absolute, contentType })
         toast.error('Erro: o servidor retornou HTML em vez da imagem. Verifique a URL ou as permissões de arquivo.')
         // open in new tab for debugging
         window.open(absolute, '_blank')
@@ -180,7 +208,6 @@ export default function OrdensServico() {
       a.remove()
       URL.revokeObjectURL(blobUrl)
     } catch (err) {
-      console.error('downloadFile error', err)
       toast.error(err.message || 'Erro ao baixar arquivo')
     }
   }
@@ -263,7 +290,6 @@ export default function OrdensServico() {
       await sendOSEmail(osId, true); // true = incluir termo de aceite
       toast.success(`E-mail enviado com sucesso para ${cliente.email}!`);
     } catch (err) {
-      console.error('Erro ao enviar e-mail:', err);
       toast.error(err.message || 'Erro ao enviar e-mail');
     } finally {
       setSendingEmail(prev => ({ ...prev, [osId]: false }));
@@ -489,7 +515,7 @@ export default function OrdensServico() {
       <form onSubmit={handleSearch} style={{ marginBottom: 16, background: '#f9f9f9', padding: 20, borderRadius: 12, border: '1px solid #e0e0e0' }}>
         <h3 style={{margin: '0 0 16px 0', fontSize: 16, color: '#333'}}>Filtros de Pesquisa</h3>
         
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12}}>
+        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 12, marginBottom: 12}}>
           <div style={{position: 'relative'}}>
             <label style={{fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 4}}>Cliente (Nome ou CPF)</label>
             <input
@@ -622,6 +648,8 @@ export default function OrdensServico() {
                           <span style={{color:'#f44336',fontWeight:700,fontSize:'0.95rem'}}>Pagamento Pendente</span>
                         ) : o.status === 'encerrada' ? (
                           <span style={{color:'#4caf50',fontWeight:700,fontSize:'0.95rem'}}>Encerrada</span>
+                        ) : o.status === 'reaberta' ? (
+                          <span style={{color:'#f44336',fontWeight:700,fontSize:'0.95rem'}}>Reaberta</span>
                         ) : (
                           <span style={{color:'#2196f3',fontWeight:700,fontSize:'0.95rem'}}>Aberta</span>
                         )}
@@ -629,7 +657,7 @@ export default function OrdensServico() {
                       <td style={{ padding: 8 }}>{new Date(o.criadoEm).toLocaleString()}</td>
                        <td style={{ padding: 8 }}>{o.encerradoEm ? new Date(o.encerradoEm).toLocaleString() : '—'}</td>
                       <td style={{ padding: 8 }}>
-                        {(o.status !== 'encerrada' && o.status !== 'pagamento-pendente') && (
+                        {(o.status === 'aberta' || o.status === 'reaberta') && (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             <button 
                               type="button" 
@@ -741,6 +769,44 @@ export default function OrdensServico() {
                             {closingOs[o._id] ? 'Finalizando...' : 'Finalizar OS (Pago)'}
                           </button>
                         )}
+                        {o.status === 'encerrada' && (
+                          <button 
+                            type="button" 
+                            disabled={!!reopeningOs[o._id]}
+                            onClick={() => {
+                              setOsParaReabrir(o._id);
+                              setShowReopenModal(true);
+                            }}
+                            style={{
+                              background: reopeningOs[o._id] ? '#bdbdbd' : '#f44336', 
+                              color: '#fff', 
+                              fontWeight: 600,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              justifyContent: 'center',
+                              transition: 'background 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => !reopeningOs[o._id] && (e.currentTarget.style.background = '#d32f2f')}
+                            onMouseLeave={(e) => !reopeningOs[o._id] && (e.currentTarget.style.background = '#f44336')}
+                          >
+                            {reopeningOs[o._id] ? (
+                              <>
+                                <div style={{
+                                  width: 14,
+                                  height: 14,
+                                  border: '2px solid #ffffff60',
+                                  borderTop: '2px solid #ffffff',
+                                  borderRadius: '50%',
+                                  animation: 'spin 0.6s linear infinite'
+                                }} />
+                                Reabrindo...
+                              </>
+                            ) : (
+                              <>Reabrir OS</>
+                            )}
+                          </button>
+                        )}
                       </td>
 
                       <td style={{ padding: 8 }}>
@@ -800,7 +866,7 @@ export default function OrdensServico() {
                                       <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'10px'}}>
                                         <span style={{fontWeight:700,fontSize:'1.08rem',color:'#444'}}>Verificações Adicionais</span>
                                       </div>
-                                      <ul style={{listStyle:'none',padding:0,margin:0,display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 16px'}}>
+                                      <ul style={{listStyle:'none',padding:0,margin:0,display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))',gap:'6px 16px'}}>
                                         {/* Vazamento */}
                                         {cl.verificacoesAdicionais.possuiVazamento && (
                                           <li style={{display:'flex',flexDirection:'column',gap:'8px',fontSize:'1rem',background: cl.verificacoesAdicionais.possuiVazamento === 'sim' ? '#ededed' : '#f8f8f8',borderRadius:'6px',padding:'6px 10px',border: cl.verificacoesAdicionais.possuiVazamento === 'sim' ? '1.5px solid #bbb' : '1.5px solid #eee'}}>
@@ -862,7 +928,7 @@ export default function OrdensServico() {
                                       <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'10px'}}>
                                         <span style={{fontWeight:700,fontSize:'1.08rem',color:'#444'}}>Validação de Entrega do Veículo</span>
                                       </div>
-                                      <ul style={{listStyle:'none',padding:0,margin:0,display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 16px'}}>
+                                      <ul style={{listStyle:'none',padding:0,margin:0,display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))',gap:'6px 16px'}}>
                                         {entregaValidacao.checks.map((c, idx) => (
                                           <li key={idx} style={{display:'flex',alignItems:'center',gap:'8px',fontSize:'1.05rem',background:c.checked?'#ededed':'#f8f8f8',borderRadius:'6px',padding:'6px 10px',border:c.checked?'1.5px solid #bbb':'1.5px solid #eee'}}>
                                             <span style={{color:c.checked?'#4caf50':'#f44336',fontWeight:c.checked?700:700,fontSize:'1.2em',marginRight:'2px'}}>{c.checked ? '✓' : '✗'}</span>
@@ -990,6 +1056,35 @@ export default function OrdensServico() {
                 style={{padding:'10px 20px',background:'#4caf50',color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontWeight:600}}
               >
                 Confirmar Pagamento e Finalizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de reabrir OS */}
+      {showReopenModal && (
+        <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(0,0,0,0.5)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{background:'#fff',padding:32,borderRadius:12,minWidth:340,maxWidth:400,boxShadow:'0 4px 24px rgba(0,0,0,0.2)',position:'relative'}}>
+            <h3 style={{marginTop:0}}>Reabrir Ordem de Serviço</h3>
+            <p>Confirma que deseja reabrir esta OS? O status será alterado para <strong>Reaberta</strong> e o pagamento será marcado como <strong>Pendente</strong>.</p>
+            <div style={{display:'flex',gap:12,marginTop:20}}>
+              <button 
+                type="button" 
+                onClick={() => { 
+                  setShowReopenModal(false); 
+                  setOsParaReabrir(null); 
+                }} 
+                style={{flex:1,padding:'10px 20px',background:'#bdbdbd',color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontWeight:600}}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button" 
+                onClick={handleReopenOS} 
+                style={{flex:1,padding:'10px 20px',background:'#2196f3',color:'#fff',border:'none',borderRadius:6,cursor:'pointer',fontWeight:600}}
+              >
+                Confirmar e Reabrir
               </button>
             </div>
           </div>

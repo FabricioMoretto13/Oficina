@@ -207,3 +207,29 @@ exports.enviarEmail = async (req, res) => {
     res.status(500).json({ error: err.message || 'Erro ao enviar e-mail' });
   }
 };
+
+exports.reopen = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const os = await OrdemServico.findById(id);
+    if (!os) return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
+    
+    if (os.status !== 'encerrada') {
+      return res.status(400).json({ error: 'Apenas ordens encerradas podem ser reabertas' });
+    }
+
+    os.status = 'reaberta';
+    os.encerradoEm = null;
+    os.statusPagamento = 'pendente';
+    
+    await os.save();
+    
+    const updated = await OrdemServico.findById(os._id)
+      .populate('clienteId')
+      .populate('veiculoId');
+    
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

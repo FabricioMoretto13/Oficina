@@ -215,7 +215,6 @@ export default function Checklist() {
         navigate('/os?aba=historico')
       }, 1500)
     } catch (err) {
-      console.error('Checklist save error', err)
       toast.error(err.message || 'Erro ao salvar checklist')
     } finally { 
       setLoading(false) 
@@ -278,7 +277,7 @@ export default function Checklist() {
                 <div style={{flex: 1}}>
                   <label>Fotos <span style={{color:'#c00'}}>*</span></label>
                   <label className="file-upload-label">
-                    <input type="file" accept="image/*" multiple onChange={e => handleFilesChange(idx, e.target.files)} style={{ display: 'none' }} />
+                    <input type="file" accept="image/*" capture="environment" multiple onChange={e => handleFilesChange(idx, e.target.files)} style={{ display: 'none' }} />
                     <span className="file-upload-btn">Escolher arquivos</span>
                   </label>
                   <div className="photo-previews">
@@ -309,7 +308,7 @@ export default function Checklist() {
             Verificações Adicionais
           </h3>
 
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 20}}>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: 20}}>
             {/* Possui algum vazamento? */}
             <div style={{background: '#fff', padding: 16, borderRadius: 10, border: '1px solid #e0e0e0'}}>
               <label style={{fontWeight: 600, display: 'block', marginBottom: 12, fontSize: 15, color: '#222'}}>Possui algum vazamento?</label>
@@ -341,7 +340,7 @@ export default function Checklist() {
               {possuiVazamento === 'sim' && (
                 <div style={{borderTop: '1px solid #e0e0e0', paddingTop: 14}}>
                   <p style={{margin: '0 0 12px 0', fontWeight: 600, fontSize: 14, color: '#666'}}>Tipos de vazamento:</p>
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8}}>
                     {[
                       { key: 'arCondicionado', label: 'Ar Condicionado' },
                       { key: 'cambio', label: 'Câmbio' },
@@ -397,7 +396,7 @@ export default function Checklist() {
               {luzesManutencao === 'sim' && (
                 <div style={{borderTop: '1px solid #e0e0e0', paddingTop: 14}}>
                   <p style={{margin: '0 0 12px 0', fontWeight: 600, fontSize: 14, color: '#666'}}>Luzes acesas:</p>
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxHeight: 320, overflowY: 'auto', paddingRight: 4}}>
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, maxHeight: 320, overflowY: 'auto', paddingRight: 4}}>
                     {[
                       { key: 'abs', label: 'ABS' },
                       { key: 'airbag', label: 'Airbag' },

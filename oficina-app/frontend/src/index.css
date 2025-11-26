@@ -142,47 +142,106 @@ button[disabled]:hover{transform:none;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
 .photo-previews{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .photo-previews img{width:80px;height:80px;object-fit:cover;border-radius:6px}
 
+/* Responsive Tables */
+@media (max-width: 1024px) {
+	table {
+		display: block !important;
+		overflow-x: auto !important;
+		white-space: nowrap !important;
+		-webkit-overflow-scrolling: touch !important;
+		border: 1px solid #eee !important;
+	}
+	
+	table th, table td {
+		min-width: 100px !important;
+		padding: 8px 6px !important;
+		font-size: 13px !important;
+	}
+	
+	table button {
+		font-size: 12px !important;
+		padding: 8px 10px !important;
+		white-space: normal !important;
+	}
+}
+
 /* Responsive */
-@media (max-width: 720px) {
+@media (max-width: 768px) {
 	html, body, #root {
 		width: 100vw !important;
 		max-width: 100vw !important;
 		overflow-x: hidden !important;
 		box-sizing: border-box !important;
 	}
+	
 	.container, .card, .dashboard-summary, aside {
 		box-sizing: border-box !important;
 		max-width: 100vw !important;
 		min-width: 0 !important;
-		width: 100vw !important;
+		width: 100% !important;
 		overflow-x: hidden !important;
 	}
+	
 	.container {
-		margin: 4px !important;
-		padding: 4vw 2vw !important;
-		border-radius: 0 !important;
-		box-shadow: none !important;
+		margin: 8px !important;
+		padding: 16px 12px !important;
+		border-radius: 8px !important;
 	}
+	
 	.card {
-		padding: 6vw 2vw !important;
-		border-radius: 0 !important;
-		margin: 0 !important;
-		box-shadow: none !important;
+		padding: 16px 12px !important;
+		border-radius: 8px !important;
+		margin: 8px 0 !important;
 	}
+	
 	.dashboard-summary {
 		flex-direction: column !important;
 		gap: 16px !important;
 		align-items: stretch !important;
 	}
+	
 	.form-row {
 		flex-direction: column !important;
 		gap: 8px !important;
 	}
+	
 	aside {
-		width: 90vw !important;
+		width: 85vw !important;
 		left: 0 !important;
-		border-radius: 0 !important;
-		box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+		border-radius: 0 12px 12px 0 !important;
+	}
+	
+	/* Títulos menores em mobile */
+	h1 { font-size: 22px !important; }
+	h2 { font-size: 20px !important; }
+	h3 { font-size: 16px !important; }
+	
+	/* Botões em mobile */
+	button {
+		padding: 12px 16px !important;
+		font-size: 14px !important;
+		width: 100%;
+	}
+	
+	/* Inputs em mobile */
+	input, select, textarea {
+		font-size: 16px !important;
+		padding: 12px !important;
+	}
+	
+	/* Tabelas em mobile - formato card */
+	table {
+		font-size: 12px !important;
+	}
+	
+	table th {
+		font-size: 11px !important;
+		padding: 6px 4px !important;
+	}
+	
+	table td {
+		font-size: 12px !important;
+		padding: 8px 4px !important;
 	}
 }
 
@@ -259,4 +318,98 @@ button:not([disabled]):hover {
 
 button:not([disabled]):active {
   transform: translateY(0);
+}
+
+/* Modais responsivos */
+@media (max-width: 768px) {
+	/* Modais ocupam mais espaço em mobile */
+	div[style*="position: 'fixed'"] > div[style*="background: '#fff'"],
+	div[style*="position:'fixed'"] > div[style*="background:'#fff'"] {
+		max-width: 95vw !important;
+		min-width: 95vw !important;
+		padding: 20px 16px !important;
+		max-height: 90vh !important;
+		overflow-y: auto !important;
+	}
+	
+	/* Ajusta dropdowns de sugestões */
+	div[style*="position: 'absolute'"][style*="zIndex: 100"],
+	div[style*="position:'absolute'"][style*="zIndex:100"] {
+		max-width: 90vw !important;
+	}
+}
+
+/* Mobile - landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+	.container {
+		padding: 12px 16px !important;
+	}
+	
+	.card {
+		padding: 12px 16px !important;
+	}
+}
+
+/* Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+	.container {
+		max-width: 95% !important;
+		margin: 16px auto !important;
+	}
+	
+	button {
+		padding: 10px 14px !important;
+	}
+}
+
+/* Ajustes para foto previews em mobile */
+@media (max-width: 768px) {
+	.photo-previews {
+		flex-direction: column !important;
+		align-items: flex-start !important;
+	}
+	
+	.photo-previews img {
+		width: 100% !important;
+		max-width: 200px !important;
+		height: auto !important;
+	}
+	
+	/* Ajusta campos de checklist */
+	.checklist-item {
+		padding: 12px 8px !important;
+	}
+	
+	/* Ajusta actions em mobile */
+	.checklist-actions {
+		flex-direction: column !important;
+		gap: 8px !important;
+	}
+	
+	.checklist-actions button {
+		width: 100% !important;
+	}
+}
+
+/* Previne zoom ao focar em inputs no iOS */
+@media (max-width: 768px) {
+	input[type="text"],
+	input[type="email"],
+	input[type="tel"],
+	input[type="password"],
+	input[type="number"],
+	input[type="date"],
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
+}
+
+/* Ajustes para filtros em linha */
+@media (max-width: 768px) {
+	form > div[style*="display: 'flex'"],
+	form > div[style*="display:'flex'"] {
+		flex-direction: column !important;
+		gap: 12px !important;
+	}
 }

@@ -6,8 +6,8 @@ export default function Header() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [open, setOpen] = useState(window.innerWidth > 720);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 720);
+  const [open, setOpen] = useState(window.innerWidth > 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const touchStartY = useRef(null);
 
   const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
@@ -17,8 +17,8 @@ export default function Header() {
 
   useEffect(() => {
     function handleResize() {
-      setIsMobile(window.innerWidth <= 720);
-      if (window.innerWidth > 720) setOpen(true);
+      setIsMobile(window.innerWidth <= 1024);
+      if (window.innerWidth > 1024) setOpen(true);
       else setOpen(false);
     }
     window.addEventListener('resize', handleResize);
@@ -57,7 +57,7 @@ export default function Header() {
       await logout();
       navigate('/login');
     } catch (err) {
-      console.error('Logout failed', err);
+      // Silent error
     }
   }
 
@@ -77,23 +77,40 @@ export default function Header() {
       onClick={() => setOpen(o => !o)}
       style={{
         position: 'fixed',
-        top: 16,
-        left: 16,
+        bottom: 24,
+        right: 24,
         zIndex: 201,
         background: '#111',
         color: '#fff',
-        border: 'none',
+        border: '2px solid #333',
         borderRadius: '50%',
-        width: 44,
-        height: 44,
+        width: 56,
+        height: 56,
+        minWidth: 56,
+        minHeight: 56,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-        fontSize: 28
+        boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
+        fontSize: 24,
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        padding: 0,
+        margin: 0,
+        lineHeight: 1,
+        transform: open ? 'rotate(90deg)' : 'rotate(0deg)'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = open ? 'rotate(90deg) scale(1.1)' : 'scale(1.1)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
+        e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
       }}
     >
-      {open ? '×' : '≡'}
+      {open ? '×' : '☰'}
     </button>
   );
 

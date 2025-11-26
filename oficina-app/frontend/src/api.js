@@ -10,20 +10,11 @@ export async function request(path, options = {}) {
     
     const bodyString = options.body ? JSON.stringify(options.body) : undefined
     
-    console.log('Request sendo enviada:')
-    console.log('  URL:', url)
-    console.log('  Method:', options.method || 'GET')
-    console.log('  Headers:', headers)
-    console.log('  Body original:', options.body)
-    console.log('  Body stringificado:', bodyString)
-    
     const fetchOptions = {
       method: options.method || 'GET',
       headers,
       body: bodyString
     }
-    
-    console.log('  FetchOptions completo:', fetchOptions)
     
     const res = await fetch(url, fetchOptions)
     if (!res.ok) {
@@ -51,11 +42,6 @@ export const getUsuarios = () => {
 
 export const atualizarStatusUsuario = (id, status) => {
   const userEmail = sessionStorage.getItem('userEmail')
-  console.log('atualizarStatusUsuario chamado com:')
-  console.log('  id:', id)
-  console.log('  status:', status)
-  console.log('  userEmail:', userEmail)
-  console.log('  body que será enviado:', { status })
   
   return request(`/usuarios/${id}/status`, { 
     method: 'PATCH', 
@@ -116,6 +102,7 @@ export const closeOS = (id, entregaValidacao, statusPagamento) => request(`/os/$
     statusPagamento: statusPagamento || 'pago'
   } 
 })
+export const reopenOS = (id) => request(`/os/${id}/reopen`, { method: 'PATCH' })
 export const getOSs = (params) => getOS(params) // Alias para manter compatibilidade
 export const deleteOS = (id) => request(`/os/${id}`, { method: 'DELETE' })
 export const generateOSPdf = (id) => {

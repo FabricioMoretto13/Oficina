@@ -41,7 +41,7 @@ export default function Cliente() {
   useEffect(() => {
     if (abaAtiva === 'buscar' && todosClientes.length === 0) {
       getClientes().then(setTodosClientes).catch(err => {
-        console.error('Erro ao carregar clientes:', err);
+        // Silent error
       });
     }
   }, [abaAtiva]);
@@ -214,7 +214,6 @@ export default function Cliente() {
           })
         })
       } catch (err) {
-        console.error('Erro ao registrar consentimento:', err)
         // Não bloqueia o cadastro se falhar o registro de consentimento
       }
       
@@ -637,7 +636,7 @@ export default function Cliente() {
                 maxLength={18}
               />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontWeight: 600 }}>Telefone</label>
                 <input 
@@ -666,9 +665,9 @@ export default function Cliente() {
                 style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ddd' }}
               />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, marginBottom: 16 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600 }}>Bairro</label>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600 }}>Cidade</label>
                 <input 
                   type="text" 
                   value={clienteEditando.bairro || ''} 
@@ -688,7 +687,7 @@ export default function Cliente() {
                 />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: 16, marginBottom: 24 }}>
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontWeight: 600 }}>Cidade</label>
                 <input 

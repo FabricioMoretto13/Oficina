@@ -66,7 +66,7 @@ function Veiculo() {
   useEffect(() => {
     if (abaAtiva === 'buscar' && todosVeiculos.length === 0) {
       getVeiculos().then(setTodosVeiculos).catch(err => {
-        console.error('Erro ao carregar veículos:', err);
+        // Silent error
       });
     }
   }, [abaAtiva]);
@@ -176,7 +176,6 @@ function Veiculo() {
       setMarcasFipe(data);
     } catch (err) {
       toast.error('Erro ao carregar marcas da FIPE');
-      console.error(err);
     } finally {
       setLoadingMarcas(false);
     }
@@ -192,8 +191,7 @@ function Veiculo() {
       const data = await response.json();
       setModelosFipe(data.modelos || []);
     } catch (err) {
-      toast.error('Erro ao carregar modelos');
-      console.error(err);
+      toast.error('Erro ao carregar modelos da FIPE');
     } finally {
       setLoadingModelos(false);
     }
@@ -208,8 +206,7 @@ function Veiculo() {
       const data = await response.json();
       setAnosFipe(data || []);
     } catch (err) {
-      toast.error('Erro ao carregar anos');
-      console.error(err);
+      toast.error('Erro ao carregar anos da FIPE');
     } finally {
       setLoadingAnos(false);
     }
@@ -250,7 +247,6 @@ function Veiculo() {
       setMarcasFipeEdit(data);
     } catch (err) {
       toast.error('Erro ao carregar marcas da FIPE');
-      console.error(err);
     } finally {
       setLoadingMarcasEdit(false);
     }
@@ -266,8 +262,7 @@ function Veiculo() {
       const data = await response.json();
       setModelosFipeEdit(data.modelos || []);
     } catch (err) {
-      toast.error('Erro ao carregar modelos');
-      console.error(err);
+      toast.error('Erro ao carregar modelos da FIPE');
     } finally {
       setLoadingModelosEdit(false);
     }
@@ -282,8 +277,7 @@ function Veiculo() {
       const data = await response.json();
       setAnosFipeEdit(data || []);
     } catch (err) {
-      toast.error('Erro ao carregar anos');
-      console.error(err);
+      toast.error('Erro ao carregar anos da FIPE');
     } finally {
       setLoadingAnosEdit(false);
     }

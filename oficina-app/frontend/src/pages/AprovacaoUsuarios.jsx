@@ -43,10 +43,8 @@ export default function AprovacaoUsuarios() {
   async function handleAtualizarStatus(id, novoStatus) {
     try {
       setProcessando(id)
-      console.log(`Atualizando usuário ${id} para status: ${novoStatus}`)
       
       const resultado = await atualizarStatusUsuario(id, novoStatus)
-      console.log('Resultado da atualização:', resultado)
       
       // Mensagem personalizada
       const mensagem = novoStatus === 'aprovado' 
@@ -59,9 +57,7 @@ export default function AprovacaoUsuarios() {
       
       // Recarrega a lista
       await carregarUsuarios()
-      console.log('Lista de usuários recarregada')
     } catch (error) {
-      console.error('Erro ao atualizar status:', error)
       toast.error('Erro ao atualizar status: ' + error.message)
     } finally {
       setProcessando(null)
